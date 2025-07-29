@@ -1,0 +1,15 @@
+[package]
+name = "mxlogger_analyzer_rust"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+aes = "0.8"
+cipher = { version = "0.4", features = ["std"] }
+byteorder = "1.4"
+flatbuffers = "24.3.25"
+tokio = { version = "1.41.1", features = ["full"] }
+cfb-mode = "0.8.2"
+chrono = { version = "0.4", features = ["serde"] }
+chrono-tz = "0.8"
+clap = { version = "4.4", features = ["derive"] }
