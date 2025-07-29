@@ -10,8 +10,44 @@ A high-performance Rust-based tool for decoding and analyzing encrypted log file
 - ⚡ **Async Processing**: Built with Tokio for high-performance async operations
 - 📝 **Verbose Logging**: Detailed progress reporting and debugging information
 - 🛠️ **CLI Interface**: User-friendly command-line interface with comprehensive help
+- 🖥️ **Cross-Platform**: Supports Windows, macOS, and Linux
+
+## Supported Platforms
+
+| Platform | Architecture | Status |
+|----------|-------------|--------|
+| Windows | x86_64 | ✅ Supported |
+| Windows | ARM64 | ✅ Supported |
+| macOS | Intel (x86_64) | ✅ Supported |
+| macOS | Apple Silicon (ARM64) | ✅ Supported |
+| Linux | x86_64 | ✅ Supported |
 
 ## Installation
+
+### Windows (One-Click Install)
+
+#### PowerShell (Recommended)
+```powershell
+# Run in PowerShell (as Administrator or regular user)
+irm https://raw.githubusercontent.com/suyulin/mxlogger_analyzer_rust/main/scripts/install.ps1 | iex
+```
+
+#### Manual PowerShell Install
+```powershell
+# Download and run the installer script
+$scriptUrl = "https://raw.githubusercontent.com/suyulin/mxlogger_analyzer_rust/main/scripts/install-windows.ps1"
+Invoke-WebRequest -Uri $scriptUrl -OutFile install-windows.ps1
+.\install-windows.ps1
+```
+
+#### Windows Manual Download
+Visit the [Releases page](https://github.com/suyulin/mxlogger_analyzer_rust/releases) and download:
+- `mxlogger_analyzer_rust-windows-x86_64.zip` for 64-bit Windows
+- `mxlogger_analyzer_rust-windows-aarch64.zip` for ARM64 Windows
+
+Extract the `.exe` file and add it to your PATH or place it in a directory that's already in your PATH.
+
+### macOS/Linux
 
 ### Using Homebrew (Recommended)
 
@@ -22,7 +58,10 @@ brew install suyulin/mxlogger_analyzer_rust/mxlogger-analyzer-rust
 
 ### Download from GitHub Releases
 
-Visit the [Releases page](https://github.com/suyulin/mxlogger_analyzer_rust/releases) to download pre-compiled binaries for your system.
+Visit the [Releases page](https://github.com/suyulin/mxlogger_analyzer_rust/releases) to download pre-compiled binaries for your system:
+- Linux: `mxlogger_analyzer_rust-linux-x86_64.tar.gz`
+- macOS Intel: `mxlogger_analyzer_rust-macos-x86_64.tar.gz`  
+- macOS Apple Silicon: `mxlogger_analyzer_rust-macos-aarch64.tar.gz`
 
 ### Prerequisites
 
@@ -45,6 +84,19 @@ The compiled binary will be available at `target/release/mxlogger_analyzer_rust`
 
 Before using the tool, you need to set the encryption keys as environment variables:
 
+#### Windows (PowerShell)
+```powershell
+$env:MXLOGGER_CRYPT_KEY = "your_key"
+$env:MXLOGGER_IV_KEY = "your_key"
+```
+
+#### Windows (Command Prompt)
+```cmd
+set MXLOGGER_CRYPT_KEY=your_key
+set MXLOGGER_IV_KEY=your_key
+```
+
+#### macOS/Linux (Bash/Zsh)
 ```bash
 export MXLOGGER_CRYPT_KEY=your_key
 export MXLOGGER_IV_KEY=your_key
@@ -57,6 +109,9 @@ export MXLOGGER_IV_KEY=your_key
 ```bash
 # Basic decoding
 ./mxlogger_analyzer_rust logfile.bin
+
+# Windows
+.\mxlogger_analyzer_rust.exe logfile.bin
 
 # With timezone specification
 ./mxlogger_analyzer_rust logfile.bin --timezone Asia/Shanghai
@@ -90,6 +145,23 @@ OPTIONS:
 
 ### Examples
 
+#### Windows (PowerShell)
+```powershell
+# Set environment variables
+$env:MXLOGGER_CRYPT_KEY = "your_key"
+$env:MXLOGGER_IV_KEY = "your_key"
+
+# Decode with Shanghai timezone
+.\mxlogger_analyzer_rust.exe logs\app.bin --timezone Asia/Shanghai
+
+# Decode with verbose output and custom filename
+.\mxlogger_analyzer_rust.exe logs\app.bin -o application_logs --verbose
+
+# Decode with UTC timezone
+.\mxlogger_analyzer_rust.exe logs\app.bin -z UTC -o decoded_logs -v
+```
+
+#### macOS/Linux (Bash)
 ```bash
 # Set environment variables
 export MXLOGGER_CRYPT_KEY=your_key
