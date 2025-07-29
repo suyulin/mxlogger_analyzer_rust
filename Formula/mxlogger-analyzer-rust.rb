@@ -7,14 +7,14 @@ class MxloggerAnalyzerRust < Formula
   if OS.mac?
     if Hardware::CPU.arm?
       url "https://github.com/suyulin/mxlogger_analyzer_rust/releases/download/v#{version}/mxlogger_analyzer_rust-macos-aarch64.tar.gz"
-      sha256 "REPLACE_WITH_ACTUAL_SHA256"
+      sha256 "263ed8aa58d3ad17f3fe131163635153262fb9c647782e45f22d28e67a03ed0d"
     else
       url "https://github.com/suyulin/mxlogger_analyzer_rust/releases/download/v#{version}/mxlogger_analyzer_rust-macos-x86_64.tar.gz"
-      sha256 "REPLACE_WITH_ACTUAL_SHA256"
+      sha256 "beaf64f3d6e277fedf446a4831ee024eb9850566504f11bdc56285419409da60"
     end
   elsif OS.linux?
     url "https://github.com/suyulin/mxlogger_analyzer_rust/releases/download/v#{version}/mxlogger_analyzer_rust-linux-x86_64.tar.gz"
-    sha256 "REPLACE_WITH_ACTUAL_SHA256"
+    sha256 "734db5f94f96f8c7ce57fac5a9b9fa893f6a3dc7fa24c27b5cdcc7e90ef28e55"
   end
 
   def install
