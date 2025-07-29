@@ -17,5 +17,9 @@ Thumbs.db
 *.zip
 dist/
 
+# Installation temporaries
+install-windows.ps1.tmp
+install.ps1.tmp
+
 # Logs
 *.log
