@@ -1,63 +1,47 @@
-# 快速发布到 Homebrew
+# 超简单 Homebrew 发布
+
+## 🎯 无需创建新仓库！
+
+实际上，我们可以直接从项目仓库提供 Homebrew 安装，无需创建独立的 tap 仓库。
 
 ## 简单步骤
 
-1. **运行发布脚本**：
+1. **等待 GitHub Actions 完成** (查看 https://github.com/suyulin/mxlogger_analyzer_rust/actions)
+
+2. **更新 Formula SHA256**：
    ```bash
-   ./scripts/release.sh 0.1.0
+   ./scripts/update_formula.sh 0.1.0
    ```
 
-2. **等待 GitHub Actions 完成** (大约 5-10 分钟)
-
-3. **创建您的 Homebrew Tap**：
+3. **提交更新**：
    ```bash
-   gh repo create homebrew-mxlogger --public --description "Homebrew tap for MxLogger tools"
-   ```
-
-4. **设置 Tap 仓库**：
-   ```bash
-   git clone https://github.com/suyulin/homebrew-mxlogger.git
-   cd homebrew-mxlogger
-   mkdir Formula
-   cp ../mxlogger_analyzer_rust/Formula/mxlogger-analyzer-rust.rb ./Formula/
-   git add .
-   git commit -m "Add mxlogger-analyzer-rust formula"
+   git add Formula/mxlogger-analyzer-rust.rb
+   git commit -m "Update formula SHA256 for v0.1.0"
    git push origin main
    ```
 
-5. **测试安装**：
+4. **测试安装**：
    ```bash
-   brew tap suyulin/mxlogger
-   brew install mxlogger-analyzer-rust
+   brew install suyulin/mxlogger_analyzer_rust/mxlogger-analyzer-rust
    ```
+
+就这么简单！🎉
 
 ## 用户安装指南
 
 用户现在可以通过以下方式安装您的工具：
 
 ```bash
-brew tap suyulin/mxlogger
-brew install mxlogger-analyzer-rust
+# 方法 1：直接安装（推荐）
+brew install suyulin/mxlogger_analyzer_rust/mxlogger-analyzer-rust
+
+# 方法 2：使用 URL
+brew install https://raw.githubusercontent.com/suyulin/mxlogger_analyzer_rust/main/Formula/mxlogger-analyzer-rust.rb
 ```
 
-或者一行命令：
-```bash
-brew install suyulin/mxlogger/mxlogger-analyzer-rust
-```
+## 优势
 
-## 更新发布
-
-当您需要发布新版本时：
-
-1. 运行发布脚本：`./scripts/release.sh <new_version>`
-2. 等待 GitHub Actions 完成
-3. 更新 Homebrew Tap：
-   ```bash
-   cd ../homebrew-mxlogger
-   cp ../mxlogger_analyzer_rust/Formula/mxlogger-analyzer-rust.rb ./Formula/
-   git add .
-   git commit -m "Update mxlogger-analyzer-rust to v<new_version>"
-   git push origin main
-   ```
-
-就这么简单！🎉
+- ✅ **无需创建新仓库**
+- ✅ **维护简单** - 一切都在一个地方
+- ✅ **立即可用** - 无需额外设置
+- ✅ **自动同步** - formula 和代码在同一仓库

@@ -25,8 +25,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                          MXLOGGER_IV_KEY    - Initialization vector for AES decryption\n\n\
                          Both environment variables are required for decryption.")
             .after_help("EXAMPLES:\n  \
-                         export MXLOGGER_CRYPT_KEY=DMCNytVfhKUqPzyY8Bad\n  \
-                         export MXLOGGER_IV_KEY=f3cufTR8m8XNwZYo4LGM\n  \
+                         export MXLOGGER_CRYPT_KEY=your_key\n  \
+                         export MXLOGGER_IV_KEY=your_key\n  \
                          mxlogger_analyzer_rust logfile.bin\n  \
                          mxlogger_analyzer_rust logfile.bin --timezone Asia/Shanghai\n  \
                          mxlogger_analyzer_rust logfile.bin -o custom_output --verbose\n  \

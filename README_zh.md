@@ -16,11 +16,8 @@
 ### 使用 Homebrew (推荐)
 
 ```bash
-# 添加 tap
-brew tap suyulin/mxlogger
-
-# 安装工具
-brew install mxlogger-analyzer-rust
+# 直接安装（无需添加 tap）
+brew install suyulin/mxlogger_analyzer_rust/mxlogger-analyzer-rust
 ```
 
 ### 从 GitHub Releases 下载

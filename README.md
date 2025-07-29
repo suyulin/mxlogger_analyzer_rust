@@ -16,11 +16,8 @@ A high-performance Rust-based tool for decoding and analyzing encrypted log file
 ### Using Homebrew (Recommended)
 
 ```bash
-# Add the tap
-brew tap suyulin/mxlogger
-
-# Install the tool
-brew install mxlogger-analyzer-rust
+# Direct install (no tap required)
+brew install suyulin/mxlogger_analyzer_rust/mxlogger-analyzer-rust
 ```
 
 ### Download from GitHub Releases
