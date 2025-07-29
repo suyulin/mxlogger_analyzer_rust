@@ -10,8 +10,51 @@
 - ⚡ **异步处理**: 基于 Tokio 构建，提供高性能异步操作
 - 📝 **详细日志**: 详细的进度报告和调试信息
 - 🛠️ **命令行界面**: 用户友好的命令行界面，提供全面的帮助
+- 🖥️ **跨平台**: 支持 Windows、macOS 和 Linux
+
+## 支持的平台
+
+| 平台 | 架构 | 状态 |
+|----------|-------------|--------|
+| Windows | x86_64 | ✅ 支持 |
+| Windows | ARM64 | ✅ 支持 |
+| macOS | Intel (x86_64) | ✅ 支持 |
+| macOS | Apple Silicon (ARM64) | ✅ 支持 |
+| Linux | x86_64 | ✅ 支持 |
 
 ## 安装
+
+### Windows (一键安装)
+
+#### PowerShell (推荐)
+```powershell
+# 在 PowerShell 中运行（管理员或普通用户均可）
+irm https://raw.githubusercontent.com/suyulin/mxlogger_analyzer_rust/main/scripts/install.ps1 | iex
+```
+
+#### 命令提示符 (CMD)
+```cmd
+REM 下载并运行 install.cmd
+curl -L -o install.cmd https://raw.githubusercontent.com/suyulin/mxlogger_analyzer_rust/main/scripts/install.cmd
+install.cmd
+```
+
+#### 手动 PowerShell 安装
+```powershell
+# 下载并运行安装脚本
+$scriptUrl = "https://raw.githubusercontent.com/suyulin/mxlogger_analyzer_rust/main/scripts/install-windows.ps1"
+Invoke-WebRequest -Uri $scriptUrl -OutFile install-windows.ps1
+.\install-windows.ps1
+```
+
+#### Windows 手动下载
+访问 [Releases 页面](https://github.com/suyulin/mxlogger_analyzer_rust/releases) 下载：
+- `mxlogger_analyzer_rust-windows-x86_64.zip` 适用于 64 位 Windows
+- `mxlogger_analyzer_rust-windows-aarch64.zip` 适用于 ARM64 Windows
+
+解压 `.exe` 文件并将其添加到 PATH 或放置在已在 PATH 中的目录。
+
+### macOS/Linux
 
 ### 使用 Homebrew (推荐)
 
@@ -22,7 +65,10 @@ brew install suyulin/mxlogger_analyzer_rust/mxlogger-analyzer-rust
 
 ### 从 GitHub Releases 下载
 
-访问 [Releases 页面](https://github.com/suyulin/mxlogger_analyzer_rust/releases) 下载适合您系统的预编译二进制文件。
+访问 [Releases 页面](https://github.com/suyulin/mxlogger_analyzer_rust/releases) 下载适合您系统的预编译二进制文件：
+- Linux: `mxlogger_analyzer_rust-linux-x86_64.tar.gz`
+- macOS Intel: `mxlogger_analyzer_rust-macos-x86_64.tar.gz`  
+- macOS Apple Silicon: `mxlogger_analyzer_rust-macos-aarch64.tar.gz`
 
 ### 前置条件
 
@@ -45,6 +91,19 @@ cargo build --release
 
 使用工具之前，需要设置加密密钥环境变量：
 
+#### Windows (PowerShell)
+```powershell
+$env:MXLOGGER_CRYPT_KEY = "your_key"
+$env:MXLOGGER_IV_KEY = "your_key"
+```
+
+#### Windows (命令提示符)
+```cmd
+set MXLOGGER_CRYPT_KEY=your_key
+set MXLOGGER_IV_KEY=your_key
+```
+
+#### macOS/Linux (Bash/Zsh)
 ```bash
 export MXLOGGER_CRYPT_KEY=your_key
 export MXLOGGER_IV_KEY=your_key
@@ -57,6 +116,9 @@ export MXLOGGER_IV_KEY=your_key
 ```bash
 # 基本解码
 ./mxlogger_analyzer_rust logfile.bin
+
+# Windows
+.\mxlogger_analyzer_rust.exe logfile.bin
 
 # 指定时区
 ./mxlogger_analyzer_rust logfile.bin --timezone Asia/Shanghai
@@ -90,6 +152,23 @@ export MXLOGGER_IV_KEY=your_key
 
 ### 使用示例
 
+#### Windows (PowerShell)
+```powershell
+# 设置环境变量
+$env:MXLOGGER_CRYPT_KEY = "your_key"
+$env:MXLOGGER_IV_KEY = "your_key"
+
+# 使用上海时区解码
+.\mxlogger_analyzer_rust.exe logs\app.bin --timezone Asia/Shanghai
+
+# 使用详细输出和自定义文件名解码
+.\mxlogger_analyzer_rust.exe logs\app.bin -o application_logs --verbose
+
+# 使用 UTC 时区解码
+.\mxlogger_analyzer_rust.exe logs\app.bin -z UTC -o decoded_logs -v
+```
+
+#### macOS/Linux (Bash)
 ```bash
 # 设置环境变量
 export MXLOGGER_CRYPT_KEY=your_key
@@ -182,6 +261,16 @@ src/
    - 验证输入文件是否为有效的 MxLogger 格式文件
    - 检查加密密钥是否正确
    - 确保文件未损坏
+
+4. **Windows 安装问题**
+   - 如果 PowerShell 执行受限，运行：`Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
+   - 确保有网络连接以下载安装程序
+   - 如果 PATH 更新失败，尝试以管理员身份运行 PowerShell
+
+5. **Windows PATH 问题**
+   - 安装后重启终端
+   - 或手动将安装目录添加到 PATH
+   - 使用可执行文件的完整路径：`C:\Users\YourName\.local\bin\mxlogger_analyzer_rust.exe`
 
 ### 调试模式
 

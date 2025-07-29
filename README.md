@@ -26,10 +26,17 @@ A high-performance Rust-based tool for decoding and analyzing encrypted log file
 
 ### Windows (One-Click Install)
 
-#### PowerShell (Recommended)
+#### PowerShell (推荐)
 ```powershell
 # Run in PowerShell (as Administrator or regular user)
 irm https://raw.githubusercontent.com/suyulin/mxlogger_analyzer_rust/main/scripts/install.ps1 | iex
+```
+
+#### Command Prompt (CMD)
+```cmd
+REM Download and run install.cmd
+curl -L -o install.cmd https://raw.githubusercontent.com/suyulin/mxlogger_analyzer_rust/main/scripts/install.cmd
+install.cmd
 ```
 
 #### Manual PowerShell Install
@@ -253,6 +260,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
    - Verify that the input file is a valid MxLogger format file
    - Check that the encryption keys are correct
    - Ensure the file is not corrupted
+
+4. **Windows Installation Issues**
+   - If PowerShell execution is restricted, run: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
+   - Ensure you have internet connectivity to download the installer
+   - Try running PowerShell as Administrator if PATH updates fail
+
+5. **Windows PATH Issues**
+   - Restart your terminal after installation
+   - Or manually add the install directory to your PATH
+   - Use the full path to the executable: `C:\Users\YourName\.local\bin\mxlogger_analyzer_rust.exe`
 
 ### Debug Mode
 
