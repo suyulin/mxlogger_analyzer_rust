@@ -49,7 +49,7 @@ jobs:
           if [ "${{ runner.os }}" = "Windows" ]; then
             cp target/${{ matrix.target }}/release/mxlogger_analyzer_rust.exe dist/
             cd dist
-            powershell -Command "Compress-Archive -Path . -DestinationPath '../${{ matrix.archive-name }}'"
+            powershell -Command "Compress-Archive -Path 'mxlogger_analyzer_rust.exe' -DestinationPath '../${{ matrix.archive-name }}'"
           else
             cp target/${{ matrix.target }}/release/mxlogger_analyzer_rust dist/
             tar -czf ${{ matrix.archive-name }} -C dist .

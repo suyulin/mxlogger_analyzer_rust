@@ -14,6 +14,7 @@ $Red = [ConsoleColor]::Red
 $Green = [ConsoleColor]::Green
 $Yellow = [ConsoleColor]::Yellow
 $Blue = [ConsoleColor]::Blue
+$White = [ConsoleColor]::White
 
 function Write-ColorOutput {
     param([string]$Message, [ConsoleColor]$Color = [ConsoleColor]::White)
@@ -27,14 +28,17 @@ function Test-AdminRights {
 }
 
 function Get-Architecture {
-    if ([Environment]::Is64BitOperatingSystem) {
-        if ([Environment]::Is64BitProcess) {
-            return "x86_64"
-        } else {
-            return "x86_64"  # Still use x86_64 binary even on 32-bit process
+    $nativeArchitecture = $env:PROCESSOR_ARCHITEW6432
+    if ([string]::IsNullOrWhiteSpace($nativeArchitecture)) {
+        $nativeArchitecture = $env:PROCESSOR_ARCHITECTURE
+    }
+
+    switch ($nativeArchitecture.ToUpperInvariant()) {
+        "AMD64" { return "x86_64" }
+        "ARM64" { return "aarch64" }
+        default {
+            throw "Unsupported Windows architecture: $nativeArchitecture"
         }
-    } else {
-        throw "32-bit Windows is not supported"
     }
 }
 
@@ -142,10 +146,13 @@ try {
         Extract-Archive -ArchivePath $archivePath -ExtractPath $extractPath
 
         # Copy the executable
-        $sourcePath = Join-Path $extractPath "mxlogger_analyzer_rust.exe"
-        if (-not (Test-Path $sourcePath)) {
-            throw "Executable not found in archive"
+        $executables = @(
+            Get-ChildItem -Path $extractPath -Filter "mxlogger_analyzer_rust.exe" -File -Recurse
+        )
+        if ($executables.Count -ne 1) {
+            throw "Expected exactly one mxlogger_analyzer_rust.exe in archive, found $($executables.Count)"
         }
+        $sourcePath = $executables[0].FullName
 
         Write-ColorOutput "📋 Installing to: $exePath" $Blue
         Copy-Item $sourcePath $exePath -Force
