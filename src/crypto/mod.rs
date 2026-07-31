@@ -1,6 +1,6 @@
 use aes::cipher::KeyIvInit;
-use cfb_mode::Decryptor;
 use aes::Aes128;
+use cfb_mode::Decryptor;
 
 pub const AES_LENGTH: usize = 16;
 type Aes128CfbDec = Decryptor<Aes128>;
@@ -17,4 +17,4 @@ pub fn create_decryptor(key: &str, iv: &str) -> Aes128CfbDec {
     let key = replenish_byte(key);
     let iv = replenish_byte(iv);
     Aes128CfbDec::new(&key.into(), &iv.into())
-} 
+}

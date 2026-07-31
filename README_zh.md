@@ -1,81 +1,75 @@
-# MxLogger 分析器 (Rust版)
+# MxLogger Analyzer
 
-一个高性能的 Rust 工具，用于解码和分析加密的日志文件。该工具专为解密 MxLogger 格式文件而设计，使用 AES 加密并通过 FlatBuffers 格式解析日志数据。
+[English](README.md)
 
-## 功能特性
+一个使用 Rust 编写的跨平台命令行工具，用于解码 MxLogger 二进制日志。支持
+AES-128-CFB 解密、FlatBuffers 解析、时区格式化以及详细的处理进度输出。
 
-- 🔐 **AES 解密**: 支持可配置密钥的 AES 解密
-- 📊 **FlatBuffers 解析**: 高效解析 FlatBuffers 格式的日志数据
-- 🌍 **时区支持**: 灵活的时间戳时区格式化
-- ⚡ **异步处理**: 基于 Tokio 构建，提供高性能异步操作
-- 📝 **详细日志**: 详细的进度报告和调试信息
-- 🛠️ **命令行界面**: 用户友好的命令行界面，提供全面的帮助
-- 🖥️ **跨平台**: 支持 Windows、macOS 和 Linux
+## 功能
 
-## 支持的平台
+- 支持单个 MxLogger 文件、目录或已解密的 App 日志 ZIP
+- 将多个文件中的记录按时间戳合并排序
+- 输出可读 `.log`，并可选输出结构化 JSONL
+- 通过环境变量提供密钥，解密 AES-128-CFB 加密日志
+- 解析 FlatBuffers 日志记录
+- 使用 `Asia/Shanghai`、`UTC` 等 IANA 时区格式化时间戳
+- 支持 macOS、Linux 和 Windows
 
-| 平台 | 架构 | 状态 |
-|----------|-------------|--------|
-| Windows | x86_64 | ✅ 支持 |
-| Windows | ARM64 | ✅ 支持 |
-| macOS | Intel (x86_64) | ✅ 支持 |
-| macOS | Apple Silicon (ARM64) | ✅ 支持 |
-| Linux | x86_64 | ✅ 支持 |
+## 快速开始
+
+```bash
+# 在 macOS 或 Linux 上安装
+brew install suyulin/mxlogger/mxlogger-analyzer-rust
+
+# 输入文件已加密时需要设置
+export MXLOGGER_CRYPT_KEY="your-crypt-key"
+export MXLOGGER_IV_KEY="your-iv-key"
+
+# 将导出的 ZIP 解码为 app_logs.log 和 app_logs.jsonl
+mxlogger_analyzer_rust app_logs.zip --timezone Asia/Shanghai --jsonl
+```
 
 ## 安装
 
-### Windows (一键安装)
+### Homebrew（macOS 和 Linux）
 
-#### PowerShell (推荐)
+```bash
+brew install suyulin/mxlogger/mxlogger-analyzer-rust
+```
+
+Tap 名称是 `suyulin/mxlogger`，Homebrew 会将其解析到
+[`suyulin/homebrew-mxlogger`](https://github.com/suyulin/homebrew-mxlogger)
+仓库。
+
+### Windows
+
+在 PowerShell 中运行：
+
 ```powershell
-# 在 PowerShell 中运行（管理员或普通用户均可）
 irm https://raw.githubusercontent.com/suyulin/mxlogger_analyzer_rust/main/scripts/install.ps1 | iex
 ```
 
-#### 命令提示符 (CMD)
-```cmd
-REM 下载并运行 install.cmd
-curl -L -o install.cmd https://raw.githubusercontent.com/suyulin/mxlogger_analyzer_rust/main/scripts/install.cmd
-install.cmd
-```
+程序默认安装到 `%USERPROFILE%\.local\bin`。如果安装后命令暂时不可用，请重启终端，
+使 `PATH` 变更生效。
 
-#### 手动 PowerShell 安装
-```powershell
-# 下载并运行安装脚本
-$scriptUrl = "https://raw.githubusercontent.com/suyulin/mxlogger_analyzer_rust/main/scripts/install-windows.ps1"
-Invoke-WebRequest -Uri $scriptUrl -OutFile install-windows.ps1
-.\install-windows.ps1
-```
+### 下载预编译程序
 
-#### Windows 手动下载
-访问 [Releases 页面](https://github.com/suyulin/mxlogger_analyzer_rust/releases) 下载：
-- `mxlogger_analyzer_rust-windows-x86_64.zip` 适用于 64 位 Windows
-- `mxlogger_analyzer_rust-windows-aarch64.zip` 适用于 ARM64 Windows
+从 [GitHub Releases](https://github.com/suyulin/mxlogger_analyzer_rust/releases)
+下载对应压缩包：
 
-解压 `.exe` 文件并将其添加到 PATH 或放置在已在 PATH 中的目录。
+| 平台 | 压缩包 |
+| --- | --- |
+| macOS Apple Silicon | `mxlogger_analyzer_rust-macos-aarch64.tar.gz` |
+| macOS Intel | `mxlogger_analyzer_rust-macos-x86_64.tar.gz` |
+| Linux x86_64 | `mxlogger_analyzer_rust-linux-x86_64.tar.gz` |
+| Windows x86_64 | `mxlogger_analyzer_rust-windows-x86_64.zip` |
+| Windows ARM64 | `mxlogger_analyzer_rust-windows-aarch64.zip` |
 
-### macOS/Linux
-
-### 使用 Homebrew (推荐)
-
-```bash
-# 直接安装（无需添加 tap）
-brew install suyulin/mxlogger_analyzer_rust/mxlogger-analyzer-rust
-```
-
-### 从 GitHub Releases 下载
-
-访问 [Releases 页面](https://github.com/suyulin/mxlogger_analyzer_rust/releases) 下载适合您系统的预编译二进制文件：
-- Linux: `mxlogger_analyzer_rust-linux-x86_64.tar.gz`
-- macOS Intel: `mxlogger_analyzer_rust-macos-x86_64.tar.gz`  
-- macOS Apple Silicon: `mxlogger_analyzer_rust-macos-aarch64.tar.gz`
-
-### 前置条件
-
-- Rust 1.70+ (2021 版本)
-- Cargo 包管理器
+解压后，将可执行文件放入 `PATH` 包含的目录。
 
 ### 从源码构建
+
+安装当前稳定版 Rust 工具链，然后运行：
 
 ```bash
 git clone https://github.com/suyulin/mxlogger_analyzer_rust.git
@@ -83,221 +77,109 @@ cd mxlogger_analyzer_rust
 cargo build --release
 ```
 
-编译后的二进制文件将位于 `target/release/mxlogger_analyzer_rust`。
+可执行文件位于 `target/release/mxlogger_analyzer_rust`，Windows 上带有 `.exe`
+扩展名。
+
+## 加密密钥
+
+解码加密日志前设置以下两个变量：
+
+```bash
+export MXLOGGER_CRYPT_KEY="your-crypt-key"
+export MXLOGGER_IV_KEY="your-iv-key"
+```
+
+PowerShell：
+
+```powershell
+$env:MXLOGGER_CRYPT_KEY = "your-crypt-key"
+$env:MXLOGGER_IV_KEY = "your-iv-key"
+```
+
+解码器取每个变量的前 16 字节；不足 16 字节时使用零补齐。如果缺少任意一个变量，
+程序将跳过解密，这可用于处理未加密的 MxLogger 文件。
+
+请勿将真实密钥提交到代码仓库或粘贴到 Issue 中。
 
 ## 使用方法
 
-### 环境变量
+```text
+mxlogger_analyzer_rust [选项] <输入>
 
-使用工具之前，需要设置加密密钥环境变量：
+参数：
+  <输入>  MxLogger 文件、目录或已解密的 ZIP
 
-#### Windows (PowerShell)
+选项：
+  -z, --timezone <时区>  时间戳使用的 IANA 时区
+  -o, --output <名称>    输出路径，不包含 .log/.jsonl 扩展名
+      --jsonl            同时生成结构化 JSON Lines
+  -v, --verbose          显示解码详情和进度
+  -h, --help             显示帮助
+  -V, --version          显示版本
+```
+
+示例：
+
+```bash
+# 在当前目录生成 app.log
+mxlogger_analyzer_rust app.bin
+
+# 使用 UTC 时间，生成 decoded_session.log
+mxlogger_analyzer_rust app.bin --timezone UTC --output decoded_session
+
+# 显示进度和解码错误
+mxlogger_analyzer_rust app.bin -z Asia/Shanghai -v
+
+# 合并目录中的全部 .mx 文件，同时生成 decoded.jsonl
+mxlogger_analyzer_rust ./logs -o decoded --jsonl
+```
+
+PowerShell：
+
 ```powershell
-$env:MXLOGGER_CRYPT_KEY = "your_key"
-$env:MXLOGGER_IV_KEY = "your_key"
+mxlogger_analyzer_rust.exe .\logs\app.bin -z Asia/Shanghai -o decoded -v
 ```
 
-#### Windows (命令提示符)
-```cmd
-set MXLOGGER_CRYPT_KEY=your_key
-set MXLOGGER_IV_KEY=your_key
+## 输出
+
+文本输出每行是一条转义后的日志，包含 logger 名称、tag、线程和来源文件：
+
+```text
+2026-07-31 15:30:42.000000+08:00 INFO name=APP tag=startup thread_id=1 main_thread=true source=2026-07-31_app.mx application started
 ```
 
-#### macOS/Linux (Bash/Zsh)
+使用 `--jsonl` 时，每个对象固定包含 `timestamp`、`level`、`name`、`tag`、
+`thread_id`、`is_main_thread`、`message` 和 `source_file`。
+
+未设置 `--output` 时，程序使用输入文件名（不含扩展名），并将结果写入当前目录。
+例如，输入 `logs/app.bin` 会生成 `app.log`。默认时区为 `Asia/Shanghai`。
+
+时区必须是有效的
+[IANA 时区标识符](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)，
+例如 `UTC`、`Asia/Shanghai`、`America/New_York` 或 `Europe/London`。
+
+## 常见问题
+
+- **Homebrew 提示找不到 `homebrew-mxlogger_analyzer_rust`**：请使用
+  `brew install suyulin/mxlogger/mxlogger-analyzer-rust`。中间部分是 tap 名称，
+  不是项目仓库名。
+- **输出中出现解析错误**：确认输入是 MxLogger 二进制日志，并确认两个环境变量与
+  写入日志时使用的密钥一致。
+- **Windows 安装后找不到命令**：重启终端，或将
+  `%USERPROFILE%\.local\bin` 添加到 `PATH`。
+- **需要更多诊断信息**：添加 `--verbose` 参数重新运行。
+
+## 开发
+
 ```bash
-export MXLOGGER_CRYPT_KEY=your_key
-export MXLOGGER_IV_KEY=your_key
+cargo fmt --check
+cargo test
+cargo build --release
 ```
 
-**注意**: 解密需要两个环境变量都设置。
-
-### 基本用法
-
-```bash
-# 基本解码
-./mxlogger_analyzer_rust logfile.bin
-
-# Windows
-.\mxlogger_analyzer_rust.exe logfile.bin
-
-# 指定时区
-./mxlogger_analyzer_rust logfile.bin --timezone Asia/Shanghai
-
-# 自定义输出文件名
-./mxlogger_analyzer_rust logfile.bin -o custom_output
-
-# 详细模式显示进度
-./mxlogger_analyzer_rust logfile.bin --verbose
-
-# 组合选项
-./mxlogger_analyzer_rust logfile.bin -z UTC -o decoded_logs -v
-```
-
-### 命令行选项
-
-```
-用法:
-    mxlogger_analyzer_rust [选项] <文件>
-
-参数:
-    <文件>    要解码的输入日志文件路径
-
-选项:
-    -z, --timezone <时区>        指定时间戳格式化的时区
-    -o, --output <名称>          指定输出文件名(不含扩展名)
-    -v, --verbose               启用详细输出
-    -h, --help                  显示帮助信息
-    -V, --version               显示版本信息
-```
-
-### 使用示例
-
-#### Windows (PowerShell)
-```powershell
-# 设置环境变量
-$env:MXLOGGER_CRYPT_KEY = "your_key"
-$env:MXLOGGER_IV_KEY = "your_key"
-
-# 使用上海时区解码
-.\mxlogger_analyzer_rust.exe logs\app.bin --timezone Asia/Shanghai
-
-# 使用详细输出和自定义文件名解码
-.\mxlogger_analyzer_rust.exe logs\app.bin -o application_logs --verbose
-
-# 使用 UTC 时区解码
-.\mxlogger_analyzer_rust.exe logs\app.bin -z UTC -o decoded_logs -v
-```
-
-#### macOS/Linux (Bash)
-```bash
-# 设置环境变量
-export MXLOGGER_CRYPT_KEY=your_key
-export MXLOGGER_IV_KEY=your_key
-
-# 使用上海时区解码
-./mxlogger_analyzer_rust logs/app.bin --timezone Asia/Shanghai
-
-# 使用详细输出和自定义文件名解码
-./mxlogger_analyzer_rust logs/app.bin -o application_logs --verbose
-
-# 使用 UTC 时区解码
-./mxlogger_analyzer_rust logs/app.bin -z UTC -o decoded_logs -v
-```
-
-## 支持的时区
-
-该工具支持标准时区标识符，包括：
-
-- `UTC`
-- `Asia/Shanghai`
-- `Asia/Beijing`
-- `America/New_York`
-- `Europe/London`
-- `Asia/Tokyo`
-- 以及其他更多时区...
-
-## 输出格式
-
-该工具生成包含解码日志条目的 `.txt` 文件，根据指定时区正确格式化时间戳。
-
-## 错误处理
-
-该工具提供详细的错误报告：
-
-- **错误代码 1**: 通常表示数据损坏或文件格式不正确
-- **错误代码 2**: 可能与加密密钥不匹配有关
-- **其他错误**: 未知错误类型，请检查文件完整性
-
-## 依赖项
-
-- **aes**: AES 加密/解密
-- **cipher**: 加密算法特征
-- **byteorder**: 读写二进制数据
-- **flatbuffers**: 高效序列化库
-- **tokio**: 异步运行时
-- **cfb-mode**: 块密码的 CFB 模式
-- **chrono & chrono-tz**: 日期时间处理和时区支持
-- **clap**: 命令行参数解析
-
-## 项目结构
-
-```
-src/
-├── main.rs                     # 主应用程序入口点
-├── crypto/                     # 加密操作
-│   └── mod.rs
-├── decoder/                    # 日志解码逻辑
-│   └── mod.rs
-├── logger/                     # 日志工具
-│   └── mod.rs
-└── log_serialize_generated.rs  # FlatBuffers 生成的代码
-```
-
-## 贡献
-
-1. Fork 本仓库
-2. 创建功能分支 (`git checkout -b feature/amazing-feature`)
-3. 提交你的更改 (`git commit -m '添加一些很棒的功能'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 创建 Pull Request
+FlatBuffers 生成的 Rust 源码位于 `src/log_serialize_generated.rs`，对应 schema
+为 `log_serialize.fbs`。
 
 ## 许可证
 
-本项目采用 MIT 许可证 - 详情请查看 [LICENSE](LICENSE) 文件。
-
-## 故障排除
-
-### 常见问题
-
-1. **"未找到加密密钥"错误**
-   - 确保设置了 `MXLOGGER_CRYPT_KEY` 环境变量
-   - 检查密钥长度是否正确
-
-2. **"未找到 IV 密钥"错误**
-   - 确保设置了 `MXLOGGER_IV_KEY` 环境变量
-   - 检查 IV 密钥长度是否正确
-
-3. **解码错误**
-   - 验证输入文件是否为有效的 MxLogger 格式文件
-   - 检查加密密钥是否正确
-   - 确保文件未损坏
-
-4. **Windows 安装问题**
-   - 如果 PowerShell 执行受限，运行：`Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
-   - 确保有网络连接以下载安装程序
-   - 如果 PATH 更新失败，尝试以管理员身份运行 PowerShell
-
-5. **Windows PATH 问题**
-   - 安装后重启终端
-   - 或手动将安装目录添加到 PATH
-   - 使用可执行文件的完整路径：`C:\Users\YourName\.local\bin\mxlogger_analyzer_rust.exe`
-
-### 调试模式
-
-使用 `--verbose` 标志获取解码过程的详细信息：
-
-```bash
-./mxlogger_analyzer_rust logfile.bin --verbose
-```
-
-这将显示：
-- 文件大小信息
-- 环境变量状态
-- 进度更新
-- 详细错误信息
-
-## 性能
-
-该工具针对性能进行了优化：
-- 文件处理的异步 I/O 操作
-- 高效的内存使用
-- 大文件的进度跟踪
-- 优化的二进制解析
-
-## 版本历史
-
-- **v0.1.0**: 初始版本，具备基本解码功能
-
----
-
-如需更多信息或支持，请在 GitHub 仓库中创建 issue。
+MIT License。

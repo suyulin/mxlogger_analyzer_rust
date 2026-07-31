@@ -1,81 +1,76 @@
-# MxLogger Analyzer Rust
+# MxLogger Analyzer
 
-A high-performance Rust-based tool for decoding and analyzing encrypted log files. This tool is designed to decrypt MxLogger format files using AES encryption and parse log data using FlatBuffers format.
+[中文文档](README_zh.md)
+
+A cross-platform command-line tool written in Rust for decoding MxLogger binary
+logs. It supports AES-128-CFB decryption, FlatBuffers parsing, timezone-aware
+timestamps, and progress output for troubleshooting.
 
 ## Features
 
-- 🔐 **AES Decryption**: Supports AES decryption with configurable keys
-- 📊 **FlatBuffers Parsing**: Efficiently parses log data using FlatBuffers format
-- 🌍 **Timezone Support**: Flexible timezone formatting for timestamps
-- ⚡ **Async Processing**: Built with Tokio for high-performance async operations
-- 📝 **Verbose Logging**: Detailed progress reporting and debugging information
-- 🛠️ **CLI Interface**: User-friendly command-line interface with comprehensive help
-- 🖥️ **Cross-Platform**: Supports Windows, macOS, and Linux
+- Decodes a single MxLogger file, a directory, or a decrypted app log ZIP
+- Merges records from multiple files in timestamp order
+- Writes readable `.log` output and optional structured JSONL
+- Decrypts AES-128-CFB encrypted logs using environment-provided keys
+- Parses FlatBuffers log records
+- Formats timestamps with IANA timezones such as `Asia/Shanghai` and `UTC`
+- Runs on macOS, Linux, and Windows
 
-## Supported Platforms
+## Quick start
 
-| Platform | Architecture | Status |
-|----------|-------------|--------|
-| Windows | x86_64 | ✅ Supported |
-| Windows | ARM64 | ✅ Supported |
-| macOS | Intel (x86_64) | ✅ Supported |
-| macOS | Apple Silicon (ARM64) | ✅ Supported |
-| Linux | x86_64 | ✅ Supported |
+```bash
+# Install on macOS or Linux
+brew install suyulin/mxlogger/mxlogger-analyzer-rust
+
+# Required when the input log is encrypted
+export MXLOGGER_CRYPT_KEY="your-crypt-key"
+export MXLOGGER_IV_KEY="your-iv-key"
+
+# Decode an exported ZIP into app_logs.log and app_logs.jsonl
+mxlogger_analyzer_rust app_logs.zip --timezone Asia/Shanghai --jsonl
+```
 
 ## Installation
 
-### Windows (One-Click Install)
+### Homebrew (macOS and Linux)
 
-#### PowerShell (推荐)
+```bash
+brew install suyulin/mxlogger/mxlogger-analyzer-rust
+```
+
+The tap name is `suyulin/mxlogger`. Homebrew resolves it to the
+[`suyulin/homebrew-mxlogger`](https://github.com/suyulin/homebrew-mxlogger)
+repository.
+
+### Windows
+
+Run the installer in PowerShell:
+
 ```powershell
-# Run in PowerShell (as Administrator or regular user)
 irm https://raw.githubusercontent.com/suyulin/mxlogger_analyzer_rust/main/scripts/install.ps1 | iex
 ```
 
-#### Command Prompt (CMD)
-```cmd
-REM Download and run install.cmd
-curl -L -o install.cmd https://raw.githubusercontent.com/suyulin/mxlogger_analyzer_rust/main/scripts/install.cmd
-install.cmd
-```
+The binary is installed to `%USERPROFILE%\.local\bin`. Restart the terminal if
+the command is not immediately available on `PATH`.
 
-#### Manual PowerShell Install
-```powershell
-# Download and run the installer script
-$scriptUrl = "https://raw.githubusercontent.com/suyulin/mxlogger_analyzer_rust/main/scripts/install-windows.ps1"
-Invoke-WebRequest -Uri $scriptUrl -OutFile install-windows.ps1
-.\install-windows.ps1
-```
+### Prebuilt binaries
 
-#### Windows Manual Download
-Visit the [Releases page](https://github.com/suyulin/mxlogger_analyzer_rust/releases) and download:
-- `mxlogger_analyzer_rust-windows-x86_64.zip` for 64-bit Windows
-- `mxlogger_analyzer_rust-windows-aarch64.zip` for ARM64 Windows
+Download an archive from
+[GitHub Releases](https://github.com/suyulin/mxlogger_analyzer_rust/releases):
 
-Extract the `.exe` file and add it to your PATH or place it in a directory that's already in your PATH.
+| Platform | Archive |
+| --- | --- |
+| macOS Apple Silicon | `mxlogger_analyzer_rust-macos-aarch64.tar.gz` |
+| macOS Intel | `mxlogger_analyzer_rust-macos-x86_64.tar.gz` |
+| Linux x86_64 | `mxlogger_analyzer_rust-linux-x86_64.tar.gz` |
+| Windows x86_64 | `mxlogger_analyzer_rust-windows-x86_64.zip` |
+| Windows ARM64 | `mxlogger_analyzer_rust-windows-aarch64.zip` |
 
-### macOS/Linux
+Extract the archive and place the executable in a directory on your `PATH`.
 
-### Using Homebrew (Recommended)
+### Build from source
 
-```bash
-# Direct install (no tap required)
-brew install suyulin/mxlogger_analyzer_rust/mxlogger-analyzer-rust
-```
-
-### Download from GitHub Releases
-
-Visit the [Releases page](https://github.com/suyulin/mxlogger_analyzer_rust/releases) to download pre-compiled binaries for your system:
-- Linux: `mxlogger_analyzer_rust-linux-x86_64.tar.gz`
-- macOS Intel: `mxlogger_analyzer_rust-macos-x86_64.tar.gz`  
-- macOS Apple Silicon: `mxlogger_analyzer_rust-macos-aarch64.tar.gz`
-
-### Prerequisites
-
-- Rust 1.70+ (2021 edition)
-- Cargo package manager
-
-### Build from Source
+Install a current stable Rust toolchain, then run:
 
 ```bash
 git clone https://github.com/suyulin/mxlogger_analyzer_rust.git
@@ -83,220 +78,113 @@ cd mxlogger_analyzer_rust
 cargo build --release
 ```
 
-The compiled binary will be available at `target/release/mxlogger_analyzer_rust`.
+The executable is created at `target/release/mxlogger_analyzer_rust` (with an
+`.exe` suffix on Windows).
+
+## Encryption keys
+
+Set both variables before decoding an encrypted log:
+
+```bash
+export MXLOGGER_CRYPT_KEY="your-crypt-key"
+export MXLOGGER_IV_KEY="your-iv-key"
+```
+
+PowerShell:
+
+```powershell
+$env:MXLOGGER_CRYPT_KEY = "your-crypt-key"
+$env:MXLOGGER_IV_KEY = "your-iv-key"
+```
+
+The decoder uses the first 16 bytes of each value and zero-pads shorter values.
+If either variable is missing, decryption is skipped; this is useful for
+unencrypted MxLogger files.
+
+Do not commit real encryption keys to source control or include them in bug
+reports.
 
 ## Usage
 
-### Environment Variables
+```text
+mxlogger_analyzer_rust [OPTIONS] <INPUT>
 
-Before using the tool, you need to set the encryption keys as environment variables:
+Arguments:
+  <INPUT>  MxLogger file, directory, or decrypted ZIP bundle
 
-#### Windows (PowerShell)
+Options:
+  -z, --timezone <TIMEZONE>  IANA timezone for timestamps
+  -o, --output <NAME>        Output path without the .log/.jsonl extension
+      --jsonl                Also write structured JSON Lines output
+  -v, --verbose              Show decoding details and progress
+  -h, --help                 Print help
+  -V, --version              Print version
+```
+
+Examples:
+
+```bash
+# Creates app.log in the current directory
+mxlogger_analyzer_rust app.bin
+
+# Creates decoded_session.log with UTC timestamps
+mxlogger_analyzer_rust app.bin --timezone UTC --output decoded_session
+
+# Show progress and decoding errors
+mxlogger_analyzer_rust app.bin -z Asia/Shanghai -v
+
+# Merge every .mx file in a directory and also create decoded.jsonl
+mxlogger_analyzer_rust ./logs -o decoded --jsonl
+```
+
+PowerShell:
+
 ```powershell
-$env:MXLOGGER_CRYPT_KEY = "your_key"
-$env:MXLOGGER_IV_KEY = "your_key"
+mxlogger_analyzer_rust.exe .\logs\app.bin -z Asia/Shanghai -o decoded -v
 ```
 
-#### Windows (Command Prompt)
-```cmd
-set MXLOGGER_CRYPT_KEY=your_key
-set MXLOGGER_IV_KEY=your_key
+## Output
+
+The text decoder writes one escaped record per line, including logger name, tag,
+thread details, and source file:
+
+```text
+2026-07-31 15:30:42.000000+08:00 INFO name=APP tag=startup thread_id=1 main_thread=true source=2026-07-31_app.mx application started
 ```
 
-#### macOS/Linux (Bash/Zsh)
-```bash
-export MXLOGGER_CRYPT_KEY=your_key
-export MXLOGGER_IV_KEY=your_key
-```
+With `--jsonl`, each object contains `timestamp`, `level`, `name`, `tag`,
+`thread_id`, `is_main_thread`, `message`, and `source_file`.
 
-**Note**: Both environment variables are required for decryption.
+Without `--output`, the input file stem is used and the result is written to the
+current directory. For example, `logs/app.bin` creates `app.log`. The default
+timezone is `Asia/Shanghai`.
 
-### Basic Usage
-
-```bash
-# Basic decoding
-./mxlogger_analyzer_rust logfile.bin
-
-# Windows
-.\mxlogger_analyzer_rust.exe logfile.bin
-
-# With timezone specification
-./mxlogger_analyzer_rust logfile.bin --timezone Asia/Shanghai
-
-# With custom output filename
-./mxlogger_analyzer_rust logfile.bin -o custom_output
-
-# Verbose mode for detailed progress
-./mxlogger_analyzer_rust logfile.bin --verbose
-
-# Combined options
-./mxlogger_analyzer_rust logfile.bin -z UTC -o decoded_logs -v
-```
-
-### Command Line Options
-
-```
-USAGE:
-    mxlogger_analyzer_rust [OPTIONS] <FILE>
-
-ARGUMENTS:
-    <FILE>    Path to the input log file to decode
-
-OPTIONS:
-    -z, --timezone <TIMEZONE>    Specify the timezone for timestamp formatting
-    -o, --output <NAME>          Specify output file name (without extension)
-    -v, --verbose                Enable verbose output
-    -h, --help                   Print help
-    -V, --version                Print version
-```
-
-### Examples
-
-#### Windows (PowerShell)
-```powershell
-# Set environment variables
-$env:MXLOGGER_CRYPT_KEY = "your_key"
-$env:MXLOGGER_IV_KEY = "your_key"
-
-# Decode with Shanghai timezone
-.\mxlogger_analyzer_rust.exe logs\app.bin --timezone Asia/Shanghai
-
-# Decode with verbose output and custom filename
-.\mxlogger_analyzer_rust.exe logs\app.bin -o application_logs --verbose
-
-# Decode with UTC timezone
-.\mxlogger_analyzer_rust.exe logs\app.bin -z UTC -o decoded_logs -v
-```
-
-#### macOS/Linux (Bash)
-```bash
-# Set environment variables
-export MXLOGGER_CRYPT_KEY=your_key
-export MXLOGGER_IV_KEY=your_key
-
-# Decode with Shanghai timezone
-./mxlogger_analyzer_rust logs/app.bin --timezone Asia/Shanghai
-
-# Decode with verbose output and custom filename
-./mxlogger_analyzer_rust logs/app.bin -o application_logs --verbose
-
-# Decode with UTC timezone
-./mxlogger_analyzer_rust logs/app.bin -z UTC -o decoded_logs -v
-```
-
-## Supported Timezones
-
-The tool supports standard timezone identifiers, including:
-
-- `UTC`
-- `Asia/Shanghai`
-- `America/New_York`
-- `Europe/London`
-- `Asia/Tokyo`
-- And many others...
-
-## Output Format
-
-The tool generates a `.txt` file containing the decoded log entries with properly formatted timestamps according to the specified timezone.
-
-## Error Handling
-
-The tool provides detailed error reporting:
-
-- **Error Code 1**: Usually indicates data corruption or incorrect file format
-- **Error Code 2**: Might be related to encryption key mismatch
-- **Other errors**: Unknown error type, check file integrity
-
-## Dependencies
-
-- **aes**: AES encryption/decryption
-- **cipher**: Cryptographic cipher traits
-- **byteorder**: Reading/writing binary data
-- **flatbuffers**: Efficient serialization library
-- **tokio**: Async runtime
-- **cfb-mode**: CFB mode for block ciphers
-- **chrono & chrono-tz**: Date and time handling with timezone support
-- **clap**: Command-line argument parsing
-
-## Project Structure
-
-```
-src/
-├── main.rs                     # Main application entry point
-├── crypto/                     # Cryptographic operations
-│   └── mod.rs
-├── decoder/                    # Log decoding logic
-│   └── mod.rs
-├── logger/                     # Logging utilities
-│   └── mod.rs
-└── log_serialize_generated.rs  # FlatBuffers generated code
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Timezone values must be valid
+[IANA timezone identifiers](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones),
+for example `UTC`, `Asia/Shanghai`, `America/New_York`, or `Europe/London`.
 
 ## Troubleshooting
 
-### Common Issues
+- **Homebrew reports `homebrew-mxlogger_analyzer_rust` not found**: use
+  `brew install suyulin/mxlogger/mxlogger-analyzer-rust`. The middle component
+  is the tap name, not the project repository name.
+- **The output contains parse errors**: verify that the input is an MxLogger
+  binary log and that both encryption variables match the keys used to write it.
+- **The command is not found on Windows**: restart the terminal or add
+  `%USERPROFILE%\.local\bin` to `PATH`.
+- **More diagnostics are needed**: rerun the command with `--verbose`.
 
-1. **"Crypt key not found" error**
-   - Ensure `MXLOGGER_CRYPT_KEY` environment variable is set
-   - Check that the key is exactly 20 characters long
-
-2. **"IV key not found" error**
-   - Ensure `MXLOGGER_IV_KEY` environment variable is set
-   - Check that the IV key is exactly 20 characters long
-
-3. **Decoding errors**
-   - Verify that the input file is a valid MxLogger format file
-   - Check that the encryption keys are correct
-   - Ensure the file is not corrupted
-
-4. **Windows Installation Issues**
-   - If PowerShell execution is restricted, run: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
-   - Ensure you have internet connectivity to download the installer
-   - Try running PowerShell as Administrator if PATH updates fail
-
-5. **Windows PATH Issues**
-   - Restart your terminal after installation
-   - Or manually add the install directory to your PATH
-   - Use the full path to the executable: `C:\Users\YourName\.local\bin\mxlogger_analyzer_rust.exe`
-
-### Debug Mode
-
-Use the `--verbose` flag to get detailed information about the decoding process:
+## Development
 
 ```bash
-./mxlogger_analyzer_rust logfile.bin --verbose
+cargo fmt --check
+cargo test
+cargo build --release
 ```
 
-This will show:
-- File size information
-- Environment variable status
-- Progress updates
-- Detailed error information
+The FlatBuffers-generated Rust source is kept in
+`src/log_serialize_generated.rs`; its schema is `log_serialize.fbs`.
 
-## Performance
+## License
 
-The tool is optimized for performance:
-- Async I/O operations for file handling
-- Efficient memory usage
-- Progress tracking for large files
-- Optimized binary parsing
-
-## Version History
-
-- **v0.1.0**: Initial release with basic decoding functionality
-
----
-
-For more information or support, please open an issue on the GitHub repository.
+MIT License.
